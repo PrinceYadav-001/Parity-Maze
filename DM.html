@@ -1,0 +1,699 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chase Quest — The Graph Adventure</title>
+  <style>
+
+:root{--ink:#25244b;--muted:#7c7ba0;--purple:#7857f4;--purple-dark:#5937d8;--pink:#ff75a9;--blue:#59c9f5;--gold:#ffc857;--mint:#54d9b4;--card:#fff;--line:#e9e7fb;--shadow:0 16px 42px #5943a51b}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;color:var(--ink);font-family:Nunito,system-ui,sans-serif;background:#f7f6ff;background-image:radial-gradient(#d9d4ff 1.2px,transparent 1.2px),linear-gradient(135deg,#fbfaff,#f0f7ff 60%,#fff5fa);background-size:22px 22px,auto;overflow-x:hidden}
+.sky{position:fixed;z-index:-1;border-radius:50%;filter:blur(2px);opacity:.5;pointer-events:none}.sky-one{width:320px;height:320px;right:-100px;top:100px;background:#ffe2f0}.sky-two{width:260px;height:260px;left:-100px;bottom:0;background:#d9f4ff}
+button,input,select{font:inherit}button{cursor:pointer;transition:transform .16s ease,box-shadow .16s ease,filter .16s ease}button:hover{transform:translateY(-2px);filter:brightness(1.02)}button:active{transform:translateY(1px)}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #9d8cff;outline-offset:2px}
+.topbar{max-width:1450px;margin:auto;padding:20px 30px 8px;display:flex;align-items:center;justify-content:space-between;gap:16px}.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);font-family:Fredoka,sans-serif;font-weight:700;font-size:22px;line-height:.9;letter-spacing:.4px}.brand-mark{display:grid;place-items:center;width:43px;height:43px;color:white;background:linear-gradient(135deg,#9b7bff,#6d4fe9);border-radius:14px;box-shadow:0 7px 16px #7655ee42;font-size:25px}.brand-accent{color:var(--purple)}.brand small{display:block;margin-top:6px;font:800 9px Nunito,sans-serif;letter-spacing:2px;color:#8c8aa9}.top-actions{display:flex;gap:10px;align-items:center}.sound-button{border:1px solid #e5e0ff;background:#fff;border-radius:14px;padding:10px 14px;font-weight:900;color:var(--ink);box-shadow:0 5px 14px #5140a10a}.sound-button{color:var(--purple)}
+.app-shell{max-width:1450px;margin:auto;padding:8px 30px 30px}.hero{display:flex;align-items:center;justify-content:space-between;padding:24px 36px 20px 32px;margin:8px 0 20px;border-radius:28px;background:linear-gradient(115deg,#eeeaff,#e8f8ff 65%,#fff0f6);overflow:hidden;position:relative;min-height:195px}.eyebrow{font-size:11px;font-weight:900;letter-spacing:2px;color:var(--purple);margin:0 0 7px}.hero h1{font:700 clamp(31px,3.3vw,47px)/1.06 Fredoka,sans-serif;letter-spacing:-.7px;margin:0}.hero h1 span{color:#ff6eaa;text-shadow:0 3px 0 #fff}.hero-copy{max-width:570px;color:#747397;font-size:14px;margin:10px 0 0}.hero-mascot{position:relative;width:190px;height:145px;display:grid;place-items:center;flex-shrink:0}.mascot{font-size:94px;filter:drop-shadow(0 12px 5px #7665ac24);animation:floaty 3s ease-in-out infinite;z-index:1}.mascot-shadow{position:absolute;bottom:6px;width:95px;height:17px;border-radius:50%;background:#9384c52b;filter:blur(3px)}.spark{position:absolute;color:#ffb93f;font-size:30px;animation:twinkle 2s infinite}.spark-a{top:4px;left:14px}.spark-b{right:12px;top:24px;color:#ff73a9}@keyframes floaty{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-8px) rotate(3deg)}}@keyframes twinkle{0%,100%{transform:scale(.8) rotate(0);opacity:.6}50%{transform:scale(1.15) rotate(20deg);opacity:1}}
+.game-layout{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(310px,.82fr);gap:19px;align-items:start}.game-card,.mini-card{background:#ffffffed;border:1px solid #eeebfc;border-radius:23px;box-shadow:var(--shadow)}.game-card{overflow:hidden}.game-topline{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:20px 23px 13px}.map-kicker,.tiny-label{font-size:10px;font-weight:900;letter-spacing:1.7px;color:#a19dbb}.game-topline h2{font:700 24px Fredoka,sans-serif;margin:3px 0 0}.turn-badge{display:flex;align-items:center;gap:8px;padding:9px 13px;border-radius:13px;background:#e6f8ff;color:#1581ad;font-size:12px;font-weight:900;white-space:nowrap}.turn-badge.thief-turn{background:#fff0f6;color:#d84982}.turn-badge.won-turn{background:#fff5d9;color:#a46c00}.turn-dot{width:8px;height:8px;border-radius:50%;background:currentColor;box-shadow:0 0 0 4px #ffffff9c}
+.board-wrap{position:relative;margin:0 14px;border:1px solid #e7e5fc;border-radius:20px;overflow:hidden;background:radial-gradient(circle at 50% 45%,#fff 0,#f8f7ff 67%,#eef4ff 100%)}#board{display:block;width:100%;height:auto;min-height:350px;touch-action:manipulation}.edge{stroke:#d0cdec;stroke-width:5;stroke-linecap:round}.edge.shortcut{stroke:#ffc857;stroke-width:6;stroke-dasharray:10 8}.node{cursor:pointer;stroke:#fff;stroke-width:4;filter:drop-shadow(0 4px 3px #554d8b1a);transition:r .15s ease,filter .15s ease}.node:hover{filter:drop-shadow(0 0 7px #a28dff)}.node.legal-node{stroke:#8a71ff;stroke-width:5;animation:nodePulse 1.5s infinite}.node:focus{outline:none;stroke:#ff9a45;stroke-width:6}.node-label{fill:#fff;font-size:11px;font-weight:900;text-anchor:middle;dominant-baseline:central;pointer-events:none}.player-icon{font-size:28px;text-anchor:middle;dominant-baseline:central;pointer-events:none;filter:drop-shadow(0 3px 2px #4c3c7b2a)}.player-halo{fill:#fff;stroke-width:5;filter:drop-shadow(0 5px 5px #5443a22c)}.board-toast{position:absolute;bottom:11px;left:50%;transform:translateX(-50%);background:#fff;border:1px solid #e8e3ff;border-radius:30px;padding:7px 13px;font-size:11px;font-weight:800;color:#77719c;box-shadow:0 5px 15px #5943a512;white-space:nowrap;max-width:92%;overflow:hidden;text-overflow:ellipsis}.board-footer{display:flex;align-items:center;gap:13px;padding:13px 23px 15px}.legend-item{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:900}.legend-symbol{width:31px;height:31px;display:grid;place-items:center;border-radius:11px;background:#e7f8ff;font-size:18px}.thief-symbol{background:#fff0f6}.legend-link{height:2px;width:28px;background:#d5d0f0;border-radius:3px}.legend-note{margin-left:auto;font-size:11px;color:#9a97b7;font-weight:800}.game-actions{padding:13px 19px;border-top:1px solid #f0edfc;display:flex;gap:8px;flex-wrap:wrap}.button{border:0;border-radius:13px;padding:11px 14px;font-size:12px;font-weight:900;box-shadow:0 5px 12px #5344a00c}.button-primary{background:linear-gradient(135deg,#8e70ff,#7050ee);color:white;box-shadow:0 7px 15px #7d5ef32e}.button-solver{background:linear-gradient(135deg,#4ad7b0,#27b995);color:#124d4a}.button-soft{background:#f0edff;color:#6e54d8}.button-ghost{background:#fff;border:1px solid #e7e3f7;color:#8984a8}.game-message{min-height:38px;margin:0;padding:0 22px 16px;color:#7c789e;font-size:12px;font-weight:700}
+.side-column{display:flex;flex-direction:column;gap:14px}.mini-card{padding:17px 18px}.mini-heading{display:flex;align-items:center;gap:9px;margin-bottom:12px}.mini-heading>span:first-child{font-size:21px}.mini-heading h3{font:700 17px Fredoka,sans-serif;margin:0}.score-row{display:flex;align-items:center;justify-content:space-between}.score-row strong{display:block;font:700 34px Fredoka,sans-serif;color:#7955ed;margin-top:2px}.stars-inline{font-size:11px;letter-spacing:3px;color:#ffc44f}.trophy-art{font-size:52px;filter:drop-shadow(0 5px 3px #f3c85c33)}.progress-track{height:8px;background:#f0edff;border-radius:10px;margin:12px 0 8px;overflow:hidden}.progress-track span{height:100%;width:0;display:block;background:linear-gradient(90deg,#9c80ff,#ffc85a);border-radius:10px;transition:width .4s ease}.small-copy{font-size:11px;line-height:1.5;color:#9290ad;margin:6px 0 0}.timer-card{background:linear-gradient(145deg,#fff,#f8f5ff)}.switch{margin-left:auto;position:relative;display:inline-block;width:43px;height:24px}.switch input{opacity:0;width:0;height:0}.slider{position:absolute;inset:0;cursor:pointer;background:#d8d5e8;border-radius:24px;transition:.2s}.slider:before{content:"";position:absolute;width:18px;height:18px;left:3px;top:3px;background:#fff;border-radius:50%;box-shadow:0 2px 4px #0002;transition:.2s}.switch input:checked+.slider{background:#6fceae}.switch input:checked+.slider:before{transform:translateX(19px)}.timer-display{text-align:center;font:700 42px Fredoka,sans-serif;letter-spacing:2px;color:#6e52df;margin:3px 0 7px;font-variant-numeric:tabular-nums}.timer-settings{display:grid;grid-template-columns:auto 1fr auto 1fr;gap:6px;align-items:center;color:#918eae;font-size:11px;font-weight:800}.timer-settings input,.custom-grid input{width:100%;min-width:0;border:1px solid #e7e3f7;border-radius:10px;background:#fff;color:var(--ink);padding:8px 9px;font-weight:800}.timer-buttons{display:flex;gap:6px;margin-top:10px}.button-small{flex:1;padding:9px 6px;background:#6f52e8;color:#fff;font-size:11px}.timer-buttons .button-soft{background:#efebff;color:#6e54d8}.timer-buttons .button-ghost{background:#fff}.field-label{display:block;font-size:11px;font-weight:900;color:#8783a7;margin:11px 0 5px}.customize-card select{width:100%;border:1px solid #e7e3f7;border-radius:10px;padding:10px;background:#fff;color:var(--ink);font-weight:800;font-size:12px}.custom-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.custom-grid input{font-size:12px}.fixed-characters{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px}.fixed-character{display:flex;align-items:center;gap:9px;padding:10px;border:1px solid #ebe7fa;background:#faf9ff;border-radius:13px}.fixed-character-icon{font-size:29px}.fixed-character b,.fixed-character small{display:block}.fixed-character b{font-size:12px}.fixed-character small{font-size:10px;color:#918dac;margin-top:3px}body.dark-mode .fixed-character{background:#292744;border-color:#484267}body.dark-mode .fixed-character small{color:#b3aecf}.fact-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.fact-grid div{padding:10px;background:#f8f7ff;border-radius:12px}.fact-grid span{display:block;color:#9b97b7;font-size:10px;font-weight:800}.fact-grid b{display:block;font:700 23px Fredoka,sans-serif;margin-top:3px}.parity-pill{padding:9px 10px;margin-top:10px;background:#f0edff;color:#7666b7;border-radius:10px;font-size:11px;font-weight:800;line-height:1.4}.bottom-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:17px;margin-top:18px}.how-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.how-steps>div{display:flex;gap:9px;align-items:flex-start}.how-steps>div>b{display:grid;place-items:center;flex-shrink:0;width:27px;height:27px;border-radius:9px;background:#eeeaff;color:#7657eb;font-family:Fredoka,sans-serif}.how-steps p{font-size:11px;line-height:1.5;color:#8b88a9;margin:0}.how-steps strong{font-size:12px;color:var(--ink)}.history-tag{margin-left:auto;font-size:9px;font-weight:900;letter-spacing:1px;color:#aaa6c4}.move-log{max-height:125px;overflow:auto;margin:0;padding-left:21px;color:#8581a5;font-size:11px}.move-log li{padding:3px 0}.move-log li:first-child{color:#6654c8;font-weight:900}footer{display:flex;justify-content:space-between;padding:21px 5px 0;color:#9b97b8;font-size:11px;font-weight:800}.confetti-layer{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:20}.confetti-piece{position:absolute;top:-15px;width:9px;height:14px;border-radius:3px;animation:confettiFall 2.5s ease-in forwards}@keyframes confettiFall{to{transform:translateY(110vh) rotate(700deg);opacity:.2}}@keyframes nodePulse{0%,100%{filter:drop-shadow(0 0 2px #8b71ff)}50%{filter:drop-shadow(0 0 9px #9a7eff)}}.capture-pop{animation:capturePop .45s ease}@keyframes capturePop{50%{transform:scale(1.08)}}
+@media(max-width:1000px){.game-layout{grid-template-columns:minmax(0,1.25fr) minmax(290px,.8fr)}.hero{padding-left:24px}.hero-mascot{width:140px}.mascot{font-size:78px}.game-actions .button{flex:1}}@media(max-width:780px){.topbar{padding:16px 15px 6px}.app-shell{padding:8px 14px 22px}.hero{padding:23px 22px;min-height:170px}.hero-mascot{width:105px}.mascot{font-size:62px}.game-layout,.bottom-grid{grid-template-columns:1fr}.side-column{display:grid;grid-template-columns:1fr 1fr}.customize-card,.stats-card{grid-column:auto}.how-steps{gap:6px}}@media(max-width:540px){.brand{font-size:18px}.brand-mark{width:37px;height:37px}.brand small{font-size:7px}.level-chip{display:none}.hero{padding:21px 18px}.hero h1{font-size:32px}.hero-copy{font-size:12px;max-width:290px}.hero-mascot{width:75px;height:105px}.mascot{font-size:49px}.spark{font-size:21px}.desktop-break{display:none}.side-column{display:flex}.game-topline{padding:16px}.game-topline h2{font-size:21px}.turn-badge{font-size:10px;padding:8px}.board-wrap{margin:0 8px}#board{min-height:270px}.board-footer{padding:10px 13px;gap:7px}.legend-item{font-size:10px}.legend-symbol{width:26px;height:26px}.legend-link{width:13px}.legend-note{font-size:9px}.game-actions{padding:11px;gap:6px}.game-actions .button{font-size:10px;padding:10px 8px}.game-message{padding:0 13px 13px;font-size:11px}.how-steps{grid-template-columns:1fr}.how-steps>div{align-items:center}.how-steps p br{display:none}footer{gap:8px;font-size:9px}.timer-settings{grid-template-columns:auto 1fr auto 1fr}}
+
+/* Night-sky theme: all controls remain high-contrast in dark mode. */
+body.dark-mode{--ink:#f0edff;--muted:#b4b0d2;--card:#201f3a;--line:#393653;--shadow:0 16px 42px #0004;background-color:#141326;background-image:radial-gradient(#343052 1.2px,transparent 1.2px),linear-gradient(135deg,#17162c,#171e31 60%,#281827)}
+body.dark-mode .brand,body.dark-mode .sound-button{color:var(--ink);background:#24223f;border-color:#403b60}
+body.dark-mode .brand-accent{color:#b3a0ff}body.dark-mode .brand small{color:#aaa5cb}
+body.dark-mode .hero{background:linear-gradient(115deg,#2a2449,#1c3446 65%,#3b263e)}body.dark-mode .hero-copy{color:#c1bddc}body.dark-mode .eyebrow{color:#b4a3ff}body.dark-mode .hero h1 span{text-shadow:none}
+body.dark-mode .game-card,body.dark-mode .mini-card{background:#201f3aee;border-color:#383452;box-shadow:var(--shadow)}body.dark-mode .game-topline h2,body.dark-mode .how-steps strong{color:var(--ink)}body.dark-mode .map-kicker,body.dark-mode .tiny-label{color:#aaa5cb}
+body.dark-mode .board-wrap{background:radial-gradient(circle at 50% 45%,#292744 0,#22213b 67%,#1b283c 100%);border-color:#403b60}body.dark-mode .edge{stroke:#575273}body.dark-mode .board-toast{background:#292744;border-color:#484267;color:#d0cbed}
+body.dark-mode .legend-symbol{background:#26394c}body.dark-mode .thief-symbol{background:#452b43}body.dark-mode .legend-link{background:#514a76}body.dark-mode .legend-note,body.dark-mode .small-copy,body.dark-mode .game-message,body.dark-mode footer{color:#aaa6ca}
+body.dark-mode .score-card,body.dark-mode .timer-card{background:linear-gradient(145deg,#24213f,#211f39)}body.dark-mode .progress-track{background:#383251}body.dark-mode .timer-display{color:#b6a2ff}
+body.dark-mode .timer-settings,body.dark-mode .field-label{color:#b6b1d5}body.dark-mode .timer-settings input,body.dark-mode .custom-grid input,body.dark-mode .customize-card select{background:#17162c;border-color:#484267;color:#f0edff}
+body.dark-mode .fact-grid div{background:#292744}body.dark-mode .fact-grid span{color:#b3aecf}body.dark-mode .parity-pill{background:#302b4e;color:#c6baff}
+body.dark-mode .how-steps>div>b{background:#39315d;color:#d0c4ff}body.dark-mode .move-log{color:#b5b0d1}body.dark-mode .move-log li:first-child{color:#c5b6ff}body.dark-mode .history-tag{color:#aaa5cb}
+body.dark-mode .button-ghost,body.dark-mode .timer-buttons .button-ghost{background:#292744;border-color:#484267;color:#d0cbed}body.dark-mode .button-soft,body.dark-mode .timer-buttons .button-soft{background:#373054;color:#d0c1ff}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
+
+  </style>
+</head>
+<body>
+  <div class="sky sky-one"></div><div class="sky sky-two"></div>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="Chase Quest home"><span class="brand-mark">✦</span><span>CHASE<span class="brand-accent">QUEST</span><small>THE GRAPH ADVENTURE</small></span></a>
+    <div class="top-actions"><button class="sound-button theme-button" id="themeButton" type="button" aria-label="Switch to dark mode" title="Switch theme">🌙 <span>Dark mode</span></button><button class="sound-button" id="newGameButton" title="Start a fresh game">↻ <span>New game</span></button></div>
+  </header>
+
+  <main class="app-shell">
+    <section class="hero">
+      <div><p class="eyebrow">A LITTLE LOGIC. A LOT OF ADVENTURE.</p><h1>Can you <span>catch</span> the<br class="desktop-break"> sneaky one?</h1><p class="hero-copy">Take turns, explore the map, and collect stars. Choose your next connected spot, outsmart the thief, and collect stars!</p></div>
+      <div class="hero-mascot" aria-hidden="true"><span class="spark spark-a">✦</span><span class="mascot">🦊</span><span class="spark spark-b">✧</span><span class="mascot-shadow"></span></div>
+    </section>
+
+    <section class="game-layout">
+      <section class="game-card">
+        <div class="game-topline"><div><span class="map-kicker">YOUR PLAYGROUND</span><h2 id="graphTitle">Wonderland Maze</h2></div><div class="turn-badge police-turn" id="turnBadge"><span class="turn-dot"></span><span id="turnText">Cop's turn!</span></div></div>
+        <div class="board-wrap"><svg id="board" viewBox="0 0 760 500" role="application" aria-label="Game map. Click a connected node to move the player whose turn it is."></svg><div class="board-toast" id="boardToast" aria-live="polite">Pick a glowing nearby spot to move!</div></div>
+        <div class="board-footer"><div class="legend-item"><span class="legend-symbol police-symbol" id="policeLegend">🚀</span><span id="policeLegendName">Captain Cop</span></div><span class="legend-link"></span><div class="legend-item"><span class="legend-symbol thief-symbol" id="thiefLegend">🦊</span><span id="thiefLegendName">Sneaky Fox</span></div><span class="legend-note">One path per turn</span></div>
+        <div class="game-actions"><button class="button button-primary" id="hintButton">💡 Give me a hint</button><button class="button button-solver" id="strategyButton">🧠 Smart capture plan</button><button class="button button-soft" id="setupButton">🛠️ Move characters</button><button class="button button-ghost" id="resetButton">↻ Reset round</button></div>
+        <p class="game-message" id="gameMessage" aria-live="polite">The cop goes first. Tap a glowing connected spot to move. When the characters are neighbors, tap either character to catch the thief!</p>
+      </section>
+
+      <aside class="side-column">
+        <section class="mini-card score-card"><div class="mini-heading"><span>🏆</span><h3>Quest rewards</h3></div><div class="score-row"><div><span class="tiny-label">STARS EARNED</span><strong id="starsCount">0</strong><span class="stars-inline">★★★★★</span></div><div class="trophy-art">🏆</div></div><div class="progress-track"><span id="rewardProgress"></span></div><p class="small-copy" id="rewardText">Catch the thief to earn your first 3 stars!</p></section>
+
+        <section class="mini-card timer-card"><div class="mini-heading"><span>⏱️</span><h3>Challenge timer</h3><label class="switch"><input type="checkbox" id="timerEnabled"><span class="slider"></span></label></div><div class="timer-display" id="timerDisplay">01:00</div><div class="timer-settings"><label for="timerMinutes">Minutes</label><input id="timerMinutes" type="number" min="0" max="59" value="1"><label for="timerSeconds">Seconds</label><input id="timerSeconds" type="number" min="0" max="59" value="0"></div><div class="timer-buttons"><button class="button button-small" id="startTimer">▶ Start</button><button class="button button-small button-soft" id="pauseTimer">Ⅱ Pause</button><button class="button button-small button-ghost" id="resetTimer">↻ Reset</button></div><p class="small-copy" id="timerStatus">Timer is off. Turn it on whenever you're ready.</p></section>
+
+        <section class="mini-card customize-card"><div class="mini-heading"><span>🎨</span><h3>Make it yours</h3></div><label class="field-label" for="shapeSelect">Choose a world</label><select id="shapeSelect"><option value="mall">🏬 City Mall</option><option value="grid">🍬 Candy City</option></select>
+          <div class="custom-grid"><div><label class="field-label" for="policeName">Hero name</label><input id="policeName" maxlength="18" value="Captain Cop"></div><div><label class="field-label" for="thiefName">Sneak name</label><input id="thiefName" maxlength="18" value="Sneaky Fox"></div></div>
+          <div class="fixed-characters"><div class="fixed-character"><span class="fixed-character-icon">👮‍♂️</span><span><b>Police</b><small>Always on duty!</small></span></div><div class="fixed-character"><span class="fixed-character-icon">🥷</span><span><b>Thief</b><small>Super sneaky!</small></span></div></div>
+          <label class="field-label" for="thiefStyle">Sneak's move style</label><select id="thiefStyle"><option value="clever">🧠 Clever escape</option><option value="random">🎲 Surprise me</option></select>
+        </section>
+        <section class="mini-card stats-card"><div class="mini-heading"><span>🧩</span><h3>Map facts</h3></div><div class="fact-grid"><div><span>Steps apart</span><b id="distance">—</b></div><div><span>Moves played</span><b id="moves">0</b></div><div><span>Magic spots</span><b id="vertices">—</b></div><div><span>Paths</span><b id="edges">—</b></div></div><div class="parity-pill" id="parityInfo">Checking the map…</div></section>
+      </aside>
+    </section>
+    <section class="bottom-grid"><div class="mini-card how-card"><div class="mini-heading"><span>🎮</span><h3>How to play</h3></div><div class="how-steps"><div><b>1</b><p><strong>Take turns</strong><br>Take turns moving along connected paths.</p></div><div><b>2</b><p><strong>Follow a path</strong><br>Move along one connected edge only.</p></div><div><b>3</b><p><strong>Catch & celebrate</strong><br>When the characters meet on one spot, win stars!</p></div></div></div>
+      <div class="mini-card history-card"><div class="mini-heading"><span>📜</span><h3>Adventure log</h3><span class="history-tag">LATEST MOVES</span></div><ol class="move-log" id="moveLog"><li>Your adventure is ready. The cop moves first!</li></ol></div></section>
+    <footer>Made for curious minds ✨ <span>Think in paths. Play with logic.</span></footer>
+  </main>
+  <div class="confetti-layer" id="confettiLayer" aria-hidden="true"></div>
+  <script>
+// Chase Quest: a turn-based graph game for curious players.
+// Everything runs locally in the browser. No external AI or account is needed.
+
+const byId = (id) => document.getElementById(id);
+const svgNS = "http://www.w3.org/2000/svg";
+
+const game = {
+  graph: null,
+  startingPositions: { police: 10, thief: 4 },
+  policeNode: 10,
+  thiefNode: 4,
+  turn: "police",
+  moveCount: 0,
+  caught: false,
+  setupMode: false,
+  history: [],
+  strategy: null,
+  stars: 0,
+  policeIcon: "👮‍♂️",
+  thiefIcon: "🥷",
+  timer: { enabled: false, running: false, remaining: 60, deadline: 0, interval: null }
+};
+
+const edge = (from, to, shortcut = false) => ({ from, to, shortcut });
+const makeNodes = (coordinates) => coordinates.map(([x, y], id) => ({ id, x, y }));
+
+function ellipsePoints(count, centerX = 380, centerY = 250, radiusX = 240, radiusY = 175) {
+  return Array.from({ length: count }, (_, index) => {
+    const angle = -Math.PI / 2 + (2 * Math.PI * index) / count;
+    return [centerX + radiusX * Math.cos(angle), centerY + radiusY * Math.sin(angle)];
+  });
+}
+
+function loadGraph(shape) {
+  game.strategy = null;
+  let coordinates;
+
+  if (shape === "maze") {
+    game.graph = { name: "Wonderland Maze", nodes: makeNodes([[90,90],[240,70],[390,105],[550,70],[675,155],[600,280],[680,410],[490,425],[360,335],[200,410],[75,300],[240,240],[410,220],[520,330]]), edges: [edge(0,1),edge(1,2),edge(2,3),edge(3,4),edge(4,5),edge(5,6),edge(6,7),edge(7,8),edge(8,9),edge(9,10),edge(10,0),edge(0,11),edge(11,1),edge(11,8),edge(11,12),edge(12,2),edge(12,5),edge(12,13,true),edge(13,7),edge(13,8),edge(5,13,true)] };
+    game.startingPositions = { police: 10, thief: 4 };
+  } else if (["wheel", "star", "flower"].includes(shape)) {
+    const count = shape === "flower" ? 8 : 10;
+    const ring = ellipsePoints(count, 380, 250, shape === "flower" ? 215 : 245, shape === "flower" ? 160 : 185);
+    game.graph = { name: shape === "wheel" ? "Planet Orbit" : shape === "star" ? "Crystal Galaxy" : "Petal Park", nodes: makeNodes([[380,250], ...ring]), edges: [] };
+    for (let i = 0; i < count; i++) {
+      const node = i + 1;
+      game.graph.edges.push(edge(node, ((i + 1) % count) + 1));
+      if (shape === "flower") {
+        game.graph.edges.push(edge(0, node));
+        if (i % 2 === 0) game.graph.edges.push(edge(node, ((i + 3) % count) + 1, true));
+      } else if (shape === "wheel") {
+        game.graph.edges.push(edge(0, node, i % 3 === 0));
+      } else {
+        game.graph.edges.push(edge(node, ((i + 5) % count) + 1, i % 2 === 0));
+      }
+    }
+    game.startingPositions = { police: 1, thief: Math.floor(count / 2) + 1 };
+  } else if (shape === "bridge") {
+    game.graph = { name: "Twin Islands", nodes: makeNodes([[125,120],[235,65],[300,165],[220,260],[110,245],[490,120],[600,65],[675,170],[610,275],[485,260],[390,330],[390,420]]), edges: [edge(0,1),edge(1,2),edge(2,3),edge(3,4),edge(4,0),edge(0,2),edge(5,6),edge(6,7),edge(7,8),edge(8,9),edge(9,5),edge(5,7),edge(3,10,true),edge(10,9,true),edge(10,11),edge(11,8)] };
+    game.startingPositions = { police: 0, thief: 7 };
+  } else if (shape === "mall") {
+    game.graph = { name: "City Mall", nodes: makeNodes([[80,100],[210,100],[340,100],[470,100],[600,100],[80,260],[210,260],[340,260],[470,260],[600,260],[470,410],[600,410]]), edges: [edge(0,1),edge(1,2),edge(2,3),edge(3,4),edge(0,5),edge(1,6),edge(2,7),edge(3,8),edge(4,9),edge(5,6),edge(6,7),edge(7,8),edge(8,9),edge(8,10),edge(9,11),edge(10,11),edge(8,11,true)] };
+    game.startingPositions = { police: 5, thief: 3 };
+  } else if (shape === "grid") {
+    coordinates = [];
+    for (let row = 0; row < 4; row++) for (let col = 0; col < 4; col++) coordinates.push([145 + col * 155, 85 + row * 105]);
+    game.graph = { name: "Candy City", nodes: makeNodes(coordinates), edges: [] };
+    for (let row = 0; row < 4; row++) for (let col = 0; col < 4; col++) {
+      const node = row * 4 + col;
+      if (col < 3) game.graph.edges.push(edge(node, node + 1));
+      if (row < 3) game.graph.edges.push(edge(node, node + 4));
+      if (row < 3 && col < 3 && (row + col) % 2 === 0) game.graph.edges.push(edge(node, node + 5, true));
+    }
+    game.startingPositions = { police: 12, thief: 3 };
+  } else {
+    loadRandomGraph();
+    return;
+  }
+
+  resetRound();
+  render();
+}
+
+function loadRandomGraph() {
+  const count = 11;
+  game.graph = { name: "Surprise Map", nodes: makeNodes(ellipsePoints(count, 380, 250, 265, 185)), edges: [] };
+  for (let node = 0; node < count; node++) game.graph.edges.push(edge(node, (node + 1) % count));
+  for (let from = 0; from < count; from++) {
+    for (let to = from + 2; to < count; to++) {
+      if (!(from === 0 && to === count - 1) && Math.random() < 0.18) {
+        game.graph.edges.push(edge(from, to, Math.random() < 0.55));
+      }
+    }
+  }
+  game.startingPositions = { police: 0, thief: 5 };
+  resetRound();
+  render();
+}
+
+function neighborsOfGraph() {
+  const neighbors = game.graph.nodes.map(() => []);
+  for (const path of game.graph.edges) {
+    neighbors[path.from].push(path.to);
+    neighbors[path.to].push(path.from);
+  }
+  return neighbors;
+}
+
+function shortestDistancesFrom(start) {
+  const neighbors = neighborsOfGraph();
+  const distances = Array(game.graph.nodes.length).fill(Infinity);
+  const queue = [start];
+  distances[start] = 0;
+  for (let head = 0; head < queue.length; head++) {
+    for (const next of neighbors[queue[head]]) {
+      if (!Number.isFinite(distances[next])) {
+        distances[next] = distances[queue[head]] + 1;
+        queue.push(next);
+      }
+    }
+  }
+  return distances;
+}
+
+function distanceBetween(first, second) {
+  return shortestDistancesFrom(first)[second];
+}
+
+function graphIsBipartite() {
+  const neighbors = neighborsOfGraph();
+  const colors = Array(game.graph.nodes.length).fill(-1);
+  for (let start = 0; start < colors.length; start++) {
+    if (colors[start] !== -1) continue;
+    colors[start] = 0;
+    const queue = [start];
+    for (let head = 0; head < queue.length; head++) {
+      for (const next of neighbors[queue[head]]) {
+        if (colors[next] === -1) {
+          colors[next] = 1 - colors[queue[head]];
+          queue.push(next);
+        } else if (colors[next] === colors[queue[head]]) {
+          return false;
+        }
+      }
+    }
+  }
+  return true;
+}
+
+function resetRound() {
+  pauseTimer();
+  game.policeNode = game.startingPositions.police;
+  game.thiefNode = game.startingPositions.thief;
+  game.turn = "police";
+  game.moveCount = 0;
+  game.caught = game.policeNode === game.thiefNode;
+  game.setupMode = false;
+  game.strategy = null;
+  game.history = ["The adventure begins! The cop moves first."];
+  byId("setupButton").textContent = "🛠️ Move characters";
+  showToast("Pick a glowing nearby spot to move!");
+  render();
+}
+
+function createSvgElement(tag, attributes, text = "") {
+  const element = document.createElementNS(svgNS, tag);
+  for (const [name, value] of Object.entries(attributes)) element.setAttribute(name, value);
+  if (text) element.textContent = text;
+  return element;
+}
+
+function renderBoard() {
+  const board = byId("board");
+  board.innerHTML = "";
+  const neighbors = neighborsOfGraph();
+  const activeNode = game.turn === "police" ? game.policeNode : game.thiefNode;
+  const legalMoves = !game.caught && !game.setupMode && !game.strategy ? neighbors[activeNode] : [];
+
+  // Draw paths first so every character stays visually and interactively on top.
+  for (const path of game.graph.edges) {
+    const start = game.graph.nodes[path.from];
+    const end = game.graph.nodes[path.to];
+    board.appendChild(createSvgElement("line", {
+      x1: start.x, y1: start.y, x2: end.x, y2: end.y,
+      class: path.shortcut ? "edge shortcut" : "edge"
+    }));
+  }
+
+  // Draw all spots before drawing either character. This prevents nearby spots from
+  // covering the lower half of a character icon and stealing its click.
+  game.graph.nodes.forEach((spot, index) => {
+    const occupied = index === game.policeNode || index === game.thiefNode;
+    const legal = legalMoves.includes(index);
+    const color = index === game.policeNode && index === game.thiefNode ? "#ffc857"
+      : index === game.policeNode ? "#59c9f5"
+      : index === game.thiefNode ? "#ff75a9" : "#b5a9ff";
+    const group = createSvgElement("g", { class: "map-spot" });
+    const circle = createSvgElement("circle", {
+      cx: spot.x, cy: spot.y, r: occupied ? 25 : 17,
+      fill: color, class: `node${legal ? " legal-node" : ""}`,
+      tabindex: 0, role: "button", "aria-label": `Spot ${index + 1}${legal ? ", legal move" : ""}`
+    });
+    circle.addEventListener("click", () => handleSpotClick(index));
+    circle.addEventListener("keydown", event => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        handleSpotClick(index);
+      }
+    });
+    group.appendChild(circle);
+    if (!occupied) {
+      group.appendChild(createSvgElement("text", { x: spot.x, y: spot.y + 1, class: "node-label" }, String(index + 1)));
+    }
+    board.appendChild(group);
+  });
+
+  // Character groups are painted last and the complete icon is a click target.
+  // If the characters occupy neighboring spots, clicking either full icon makes
+  // the current player move onto the other player's spot and completes the catch.
+  [{ player: "police", node: game.policeNode, icon: game.policeIcon, color: "#59c9f5" },
+   { player: "thief", node: game.thiefNode, icon: game.thiefIcon, color: "#ff75a9" }].forEach(({ player, node, icon, color }) => {
+    const spot = game.graph.nodes[node];
+    const token = createSvgElement("g", {
+      class: `player-token ${player}-token`, role: "button", tabindex: 0,
+      "aria-label": `${currentName(player)} at spot ${node + 1}. Click character.`
+    });
+    token.style.cursor = "pointer";
+    token.addEventListener("click", event => {
+      event.stopPropagation();
+      handleCharacterClick(player);
+    });
+    token.addEventListener("keydown", event => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        event.stopPropagation();
+        handleCharacterClick(player);
+      }
+    });
+    token.appendChild(createSvgElement("circle", {
+      cx: spot.x, cy: spot.y, r: 25, class: "player-halo", stroke: color, fill: "#ffffff"
+    }));
+    token.appendChild(createSvgElement("text", {
+      x: spot.x, y: spot.y + 1, class: "player-icon", "pointer-events": "none"
+    }, icon));
+    board.appendChild(token);
+  });
+}
+
+function handleCharacterClick(clickedPlayer) {
+  if (game.caught) return;
+  if (game.setupMode) {
+    const target = clickedPlayer === "police" ? game.policeNode : game.thiefNode;
+    showToast(`Setup mode: choose a spot for ${currentName(game.turn)}.`);
+    return;
+  }
+  if (game.strategy) {
+    showToast("Your plan is ready. Tap “Smart capture plan” to continue.");
+    return;
+  }
+  const neighbors = neighborsOfGraph();
+  const areAdjacent = neighbors[game.policeNode].includes(game.thiefNode);
+  if (areAdjacent) {
+    const activePlayer = game.turn;
+    const targetNode = activePlayer === "police" ? game.thiefNode : game.policeNode;
+    makeMove(targetNode, false);
+    return;
+  }
+  // A character click is also a convenient way to select its occupied spot.
+  handleSpotClick(clickedPlayer === "police" ? game.policeNode : game.thiefNode);
+}
+
+function render() {
+  renderBoard();
+  const distance = distanceBetween(game.policeNode, game.thiefNode);
+  byId("graphTitle").textContent = game.graph.name;
+  byId("distance").textContent = Number.isFinite(distance) ? distance : "∞";
+  byId("moves").textContent = game.moveCount;
+  byId("vertices").textContent = game.graph.nodes.length;
+  byId("edges").textContent = game.graph.edges.length;
+  byId("policeLegend").textContent = game.policeIcon;
+  byId("thiefLegend").textContent = game.thiefIcon;
+  byId("policeLegendName").textContent = currentName("police");
+  byId("thiefLegendName").textContent = currentName("thief");
+
+  const turnBadge = byId("turnBadge");
+  turnBadge.className = "turn-badge " + (game.caught ? "won-turn" : game.turn === "police" ? "police-turn" : "thief-turn");
+  byId("turnText").textContent = game.caught ? "Quest complete!" : game.setupMode ? "Setup mode" : `${currentName(game.turn)}'s turn!`;
+  byId("gameMessage").textContent = game.caught
+    ? `Amazing! ${currentName("police")} caught ${currentName("thief")} in ${game.moveCount} moves. You earned 3 stars!`
+    : game.setupMode
+      ? "Tap a spot to place the character whose turn is showing. This is setup, not a game move."
+      : game.strategy
+        ? "A capture plan is ready. Press Next plan move to follow it one step at a time."
+        : `${currentName(game.turn)} moves now. Tap a glowing connected spot.`;
+  byId("strategyButton").textContent = game.strategy ? "➡️ Next plan move" : "🧠 Smart capture plan";
+  byId("setupButton").classList.toggle("button-active", game.setupMode);
+  byId("parityInfo").textContent = graphIsBipartite()
+    ? "🟣 This map is bipartite: every cycle has an even number of edges. That is a clue, not a capture guarantee."
+    : "✨ This map has an odd cycle, so some route lengths can change parity. The full chase strategy still matters.";
+  byId("starsCount").textContent = game.stars;
+  byId("rewardProgress").style.width = `${(game.stars % 3) / 3 * 100}%`;
+  byId("rewardText").textContent = game.stars === 0 ? "Catch the thief to earn 3 stars. Keep playing to collect more!" : "Fantastic chasing! Your stars are saved for this session.";
+  renderHistory();
+  updateTimerDisplay();
+}
+
+function currentName(player) {
+  const field = player === "police" ? byId("policeName") : byId("thiefName");
+  return field.value.trim() || (player === "police" ? "Hero" : "Sneak");
+}
+
+function renderHistory() {
+  const log = byId("moveLog");
+  log.innerHTML = "";
+  game.history.slice(0, 9).forEach(message => {
+    const item = document.createElement("li");
+    item.textContent = message;
+    log.appendChild(item);
+  });
+}
+
+function showToast(message) {
+  byId("boardToast").textContent = message;
+}
+
+function handleSpotClick(targetNode) {
+  if (game.caught) return;
+  if (game.setupMode) {
+    if (game.turn === "police") game.policeNode = targetNode;
+    else game.thiefNode = targetNode;
+    game.strategy = null;
+    game.history.unshift(`${currentName(game.turn)} placed at spot ${targetNode + 1}.`);
+    render();
+    return;
+  }
+  if (game.strategy) {
+    showToast("Your plan is ready. Tap “Next plan move” to continue.");
+    return;
+  }
+
+  const neighbors = neighborsOfGraph();
+  const activeNode = game.turn === "police" ? game.policeNode : game.thiefNode;
+  if (!neighbors[activeNode].includes(targetNode)) {
+    showToast("Oops! Choose a glowing spot connected by a path.");
+    return;
+  }
+  makeMove(targetNode, false);
+}
+
+function makeMove(targetNode, fromStrategy) {
+  const player = game.turn;
+  const oldNode = player === "police" ? game.policeNode : game.thiefNode;
+  if (player === "police") game.policeNode = targetNode;
+  else game.thiefNode = targetNode;
+
+  game.moveCount++;
+  game.history.unshift(`${game[player === "police" ? "policeIcon" : "thiefIcon"]} ${currentName(player)}: spot ${oldNode + 1} → ${targetNode + 1}`);
+  game.caught = game.policeNode === game.thiefNode;
+  if (game.caught) {
+    game.stars += 3;
+    pauseTimer();
+    showToast("🎉 Caught! Three stars unlocked!");
+    celebrate();
+  } else {
+    game.turn = player === "police" ? "thief" : "police";
+    showToast(fromStrategy ? "Smart plan: one move completed!" : "Nice move! Now it's the other player's turn.");
+  }
+  render();
+}
+
+function chooseThiefMove() {
+  const options = neighborsOfGraph()[game.thiefNode];
+  if (!options.length) return null;
+  if (byId("thiefStyle").value === "random") return options[Math.floor(Math.random() * options.length)];
+  return options
+    .map(node => ({ node, distance: distanceBetween(node, game.policeNode) }))
+    .sort((first, second) => second.distance - first.distance)[0].node;
+}
+
+function nextPlanMove() {
+  if (!game.strategy) {
+    findCaptureStrategy();
+    if (!game.strategy) return;
+    return;
+  }
+  const key = stateKey(game.policeNode, game.thiefNode, game.turn);
+  const next = game.strategy.policy.get(key);
+  if (next === undefined) {
+    game.strategy = null;
+    showToast("No guaranteed capture move exists from this position.");
+    render();
+    return;
+  }
+  makeMove(next, true);
+  if (!game.caught && game.strategy) {
+    // The plan's policy contains a safe example response for the thief.
+    // The solver's proof still checks every possible thief response.
+    const nextKey = stateKey(game.policeNode, game.thiefNode, game.turn);
+    if (!game.strategy.policy.has(nextKey)) {
+      game.strategy = null;
+      render();
+    }
+  }
+}
+
+function stateKey(police, thief, turn) {
+  return `${police},${thief},${turn}`;
+}
+
+// Find the set of states from which the police can force capture.
+// Police states need one winning successor; thief states need every successor to be winning.
+function findCaptureStrategy() {
+  if (game.graph.nodes.length > 16) {
+    showToast("This exact strategy finder works on maps with up to 16 spots.");
+    return;
+  }
+  game.strategy = null;
+  const neighbors = neighborsOfGraph();
+  const count = game.graph.nodes.length;
+  const states = [];
+  for (let police = 0; police < count; police++) {
+    for (let thief = 0; thief < count; thief++) {
+      for (const turn of ["police", "thief"]) {
+        states.push({ police, thief, turn, key: stateKey(police, thief, turn) });
+      }
+    }
+  }
+
+  const winning = new Set();
+  const policy = new Map();
+  for (const state of states) if (state.police === state.thief) winning.add(state.key);
+
+  let changed = true;
+  while (changed) {
+    changed = false;
+    for (const state of states) {
+      if (winning.has(state.key)) continue;
+      if (state.turn === "police") {
+        const winningMove = neighbors[state.police].find(node =>
+          winning.has(stateKey(node, state.thief, "thief")));
+        if (winningMove !== undefined) {
+          winning.add(state.key);
+          policy.set(state.key, winningMove);
+          changed = true;
+        }
+      } else {
+        const responses = neighbors[state.thief].map(node =>
+          stateKey(state.police, node, "police"));
+        if (responses.length === 0 || responses.every(key => winning.has(key))) {
+          winning.add(state.key);
+          changed = true;
+        }
+      }
+    }
+  }
+
+  const currentKey = stateKey(game.policeNode, game.thiefNode, game.turn);
+  if (!winning.has(currentKey)) {
+    showToast("No guaranteed capture strategy from this position if the thief plays perfectly.");
+    game.history.unshift("Strategy finder: no forced-capture win from this state.");
+    render();
+    return;
+  }
+
+  // Keep the proof's winning region, then pick a simple safe example move for either turn.
+  for (const state of states) {
+    if (!winning.has(state.key) || state.police === state.thief) continue;
+    if (state.turn === "police") {
+      const options = neighbors[state.police].filter(node => winning.has(stateKey(node, state.thief, "thief")));
+      if (options.length) policy.set(state.key, options.sort((a, b) => distanceBetween(a, state.thief) - distanceBetween(b, state.thief))[0]);
+    } else {
+      const options = neighbors[state.thief].filter(node => winning.has(stateKey(state.police, node, "police")));
+      if (options.length) policy.set(state.key, options.sort((a, b) => distanceBetween(b, state.police) - distanceBetween(a, state.police))[0]);
+    }
+  }
+  game.strategy = { winning, policy };
+  game.history.unshift("Strategy finder: a guaranteed-capture plan exists from this position.");
+  showToast("🧠 A winning plan is ready. Press the button again to make one planned move.");
+  render();
+}
+
+function giveHint() {
+  if (game.caught) return showToast("You did it! Start a new round for another hint.");
+  const player = game.turn;
+  const options = neighborsOfGraph()[player === "police" ? game.policeNode : game.thiefNode];
+  if (!options.length) return showToast("No connected move from this spot.");
+  const ranked = options.map(node => ({
+    node,
+    distance: distanceBetween(player === "police" ? node : game.policeNode, player === "police" ? game.thiefNode : node)
+  }));
+  ranked.sort((a, b) => player === "police" ? a.distance - b.distance : b.distance - a.distance);
+  showToast(`💡 Hint: try spot ${ranked[0].node + 1}. Think about the distance!`);
+  game.history.unshift(`Hint for ${currentName(player)}: consider spot ${ranked[0].node + 1}.`);
+  renderHistory();
+}
+
+function toggleSetup() {
+  game.setupMode = !game.setupMode;
+  game.strategy = null;
+  byId("setupButton").textContent = game.setupMode ? "✅ Finish setup" : "🛠️ Move characters";
+  showToast(game.setupMode ? "Setup on: choose a character's turn, then tap a spot." : "Setup finished. Let the chase begin!");
+  render();
+}
+
+function celebrate() {
+  const layer = byId("confettiLayer");
+  const colors = ["#8c70ff", "#ff75a9", "#ffc857", "#54d9b4", "#59c9f5"];
+  for (let i = 0; i < 70; i++) {
+    const piece = document.createElement("span");
+    piece.className = "confetti-piece";
+    piece.style.left = `${Math.random() * 100}%`;
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.animationDelay = `${Math.random() * 0.7}s`;
+    piece.style.transform = `rotate(${Math.random() * 180}deg)`;
+    layer.appendChild(piece);
+    setTimeout(() => piece.remove(), 3300);
+  }
+}
+
+function updateTimerDisplay() {
+  const totalSeconds = Math.max(0, Math.ceil(game.timer.remaining));
+  const minutes = Math.floor(totalSeconds / 60).toString().padStart(2, "0");
+  const seconds = (totalSeconds % 60).toString().padStart(2, "0");
+  byId("timerDisplay").textContent = `${minutes}:${seconds}`;
+  byId("timerDisplay").style.color = game.timer.enabled && totalSeconds <= 10 ? "#e84f87" : "";
+}
+
+function timerSettingsInSeconds() {
+  const minutes = Math.min(59, Math.max(0, Number(byId("timerMinutes").value) || 0));
+  const seconds = Math.min(59, Math.max(0, Number(byId("timerSeconds").value) || 0));
+  return minutes * 60 + seconds;
+}
+
+function setTimerFromFields() {
+  game.timer.remaining = timerSettingsInSeconds();
+  updateTimerDisplay();
+}
+
+function pauseTimer() {
+  if (game.timer.interval) clearInterval(game.timer.interval);
+  game.timer.interval = null;
+  game.timer.running = false;
+}
+
+function startTimer() {
+  if (!byId("timerEnabled").checked) {
+    byId("timerStatus").textContent = "Turn the timer switch on first.";
+    return;
+  }
+  if (game.timer.running) return;
+  if (game.timer.remaining <= 0) setTimerFromFields();
+  if (game.timer.remaining <= 0) {
+    byId("timerStatus").textContent = "Choose at least one second for the challenge.";
+    return;
+  }
+  game.timer.running = true;
+  game.timer.deadline = Date.now() + game.timer.remaining * 1000;
+  byId("timerStatus").textContent = "Clock is ticking! Make your moves count.";
+  game.timer.interval = setInterval(() => {
+    game.timer.remaining = Math.max(0, (game.timer.deadline - Date.now()) / 1000);
+    updateTimerDisplay();
+    if (game.timer.remaining <= 0) {
+      pauseTimer();
+      byId("timerStatus").textContent = game.caught ? "Challenge complete!" : "Time's up! Reset the timer and try again.";
+      if (!game.caught) showToast("⏰ Time's up! The thief got away this round.");
+    }
+  }, 100);
+}
+
+byId("shapeSelect").addEventListener("change", event => loadGraph(event.target.value));
+byId("hintButton").addEventListener("click", giveHint);
+byId("strategyButton").addEventListener("click", nextPlanMove);
+byId("setupButton").addEventListener("click", toggleSetup);
+byId("resetButton").addEventListener("click", resetRound);
+byId("newGameButton").addEventListener("click", () => {
+  game.stars = 0;
+  byId("shapeSelect").value = "mall";
+  loadGraph("mall");
+});
+byId("policeName").addEventListener("input", render);
+byId("thiefName").addEventListener("input", render);
+byId("timerEnabled").addEventListener("change", event => {
+  game.timer.enabled = event.target.checked;
+  if (!game.timer.enabled) pauseTimer();
+  byId("timerStatus").textContent = game.timer.enabled ? "Timer is on. Press Start when ready." : "Timer is off. No time pressure!";
+});
+byId("timerMinutes").addEventListener("change", () => { if (!game.timer.running) setTimerFromFields(); });
+byId("timerSeconds").addEventListener("change", () => { if (!game.timer.running) setTimerFromFields(); });
+byId("startTimer").addEventListener("click", startTimer);
+byId("pauseTimer").addEventListener("click", () => {
+  pauseTimer();
+  byId("timerStatus").textContent = "Timer paused. Resume whenever you're ready.";
+});
+byId("resetTimer").addEventListener("click", () => {
+  pauseTimer();
+  setTimerFromFields();
+  byId("timerStatus").textContent = "Timer reset to your chosen time.";
+});
+byId("thiefStyle").addEventListener("change", () => showToast("Sneak style updated for the next thief move."));
+
+function applyTheme(theme) {
+  const dark = theme === "dark";
+  document.body.classList.toggle("dark-mode", dark);
+  const button = byId("themeButton");
+  button.innerHTML = dark ? "☀️ <span>Light mode</span>" : "🌙 <span>Dark mode</span>";
+  button.setAttribute("aria-label", dark ? "Switch to light mode" : "Switch to dark mode");
+  try { localStorage.setItem("chaseQuestTheme", dark ? "dark" : "light"); } catch (_) {}
+}
+
+byId("themeButton").addEventListener("click", () => {
+  applyTheme(document.body.classList.contains("dark-mode") ? "light" : "dark");
+});
+
+let savedTheme = "light";
+try { savedTheme = localStorage.getItem("chaseQuestTheme") || "light"; } catch (_) {}
+applyTheme(savedTheme);
+loadGraph("mall");
+setTimerFromFields();
+
+  </script>
+</body>
+</html>
